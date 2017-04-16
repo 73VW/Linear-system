@@ -2,52 +2,60 @@
 
 /* CSS Document */
 
-body{
-    background-color: rgb(4,147,114);
-    font-family: Arial;
-    padding :0;
+body {
+    background-color: rgb(4, 147, 114);
+    font-family: Gill Sans, Verdana;
+    padding: 0;
     margin: 0;
     color: white;
     font-size: 1.8vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
-a{
-    color:black;
+a {
+    color: black;
     text-decoration: none;
 }
 
-a:hover{
+a:hover {
     color: white;
 }
 
-a:active{
+a:active {
     color: black;
 }
 
-header{
-    color: rgb(4,147,114);
+header {
+    color: rgb(4, 147, 114);
     width: 100%;
     background-color: white;
-    margin:0;
+    margin: 0;
     padding: 0;
 }
 
-h1{
-    margin:0;
+h1 {
+    font-family: 'Hoefler Text', Georgia, 'Times New Roman', serif;
+    margin: 0;
     font-size: 4vh;
-    padding-top :1vh;
-    padding-bottom :1vh;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
     margin-left: 4vw;
 }
 
-.subheading{
-    margin:0;
-    padding-top :1vh;
-    padding-bottom :1vh;
+.subheading {
+    font-family: 'Hoefler Text', Georgia, 'Times New Roman', serif;
+    letter-spacing: .2em;
+    line-height: 1.1em;
+    text-transform: uppercase;
+    font-weight: lighter;
+    margin: 0;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
     margin-left: 6vw;
 }
 
-#main{
+#main {
     width: 92vw;
     margin: 0;
     padding: 0;
@@ -55,51 +63,47 @@ h1{
     padding-bottom: 30vh;
 }
 
-#plotly{
-    width: 60vw;
-    height: 60vh;
-    position: fixed;
-    top: 15vh;
-    right: 4vw;
-}
-
-form{
+form {
     margin: 0;
     width: 15vw;
     text-align: center;
     display: inline-block;
 }
 
-.secondForm{
-    border-left: 2px solid white;
+button {
+    width: 200px;
+    background-color: white;
+    border-color: rgb(20, 20, 20);
+    border-width: 1px;
+    box-shadow: none;
+    border-radius: 3px;
+    font-weight: bold;
+    color: rgb(4, 147, 114);
+    margin: 5px;
+    padding: 2px;
 }
 
-
-button, .inputFct{
-    width: 12vw;
+button:hover {
+    background-color: rgb(222, 222, 222);
 }
 
-.inline-div{
+.inline-div {
     margin-top: 2vh;
     display: inline-block;
     width: 14vw;
     text-align: right;
 }
 
-.resultTitle{
-    font-weight: bold;
-}
-
-footer{
-    color: rgb(4,147,114);
+footer {
+    color: rgb(4, 147, 114);
     height: 20vh;
     width: 91vw;
     padding: 0;
     padding-left: 4vw;
     padding-right: 4vw;
     background-color: white;
-    margin:0;
+    margin: 0;
     position: fixed;
-    bottom :0;
+    bottom: 0;
     overflow-y: scroll;
 }
