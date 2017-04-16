@@ -3,8 +3,11 @@
 /*  Date : 10 April 2017                                   */
 /***********************************************************/
 
+//The global variable for the matrix
+var matrix = new Array();
+
 /*******************************************************/
-/*  Tools : Easiest way to get element by id and name  */
+/*  Tools                                              */
 /*******************************************************/
 
 function $(id) {
@@ -15,7 +18,18 @@ function $name(name) {
     return document.getElementsByName(name);
 }
 
-//Thread
+// Deep copy arrays
+function cloneArray(array) {
+    let clone = [];
+    for (i = 0; i < array.length; i++) {
+        clone.push(array[i].slice(0))
+    }
+    return clone;
+}
+
+/*******************************************************/
+/*  Thread                                             */
+/*******************************************************/
 var w;
 var w2;
 
@@ -49,13 +63,23 @@ function stopThread() {
     }
 }
 
-//---------------------------------------------------------------------------------------------------------
+/*******************************************************/
+/*  JSON                                               */
+/*******************************************************/
 
 // Source: https://codepen.io/KryptoniteDove/post/load-json-file-locally-using-pure-javascript
+function loadMatrixFromJSON() {
+    loadJSON(function(response) {
+        // Parse JSON string into object
+        let json = JSON.parse(response);
+        buildMatrixFromJSON(json);
+    });
+}
+
 function loadJSON(callback) {
-    var xobj = new XMLHttpRequest();
+    let xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'matrix/matrice_3x3.json', true);
+    xobj.open('GET', 'matrix/matrice_avecPB_3x3_avec_SwapObligatoire.json', true);
     xobj.onreadystatechange = function() {
         if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -65,39 +89,49 @@ function loadJSON(callback) {
     xobj.send(null);
 }
 
-function loadMatrixFromJSON() {
-    loadJSON(function(response) {
-        // Parse JSON string into object
-        var json = JSON.parse(response);
-        buildMatrixFromJSON(json);
-    });
-}
-
 /* build a matrix from the JSON file, the resulting matrix is of the following form:
 (x1, y1, z1, constant1)
 (x2, y2, z2, constant2)
 */
 function buildMatrixFromJSON(json) {
     let n = json.n;
-    var matrix = new Array();
-    var aIndex = 0;
-    var bIndex = 0;
-    for (var i = 0; i < n; i++) {
+    matrix = new Array();
+    let colIndex = 0;
+    let rowIndex = 0;
+    for (let i = 0; i < n; i++) {
         matrix[i] = new Array();
-        for (var j = 0; j < n; j++) {
-            matrix[i].push(parseFloat(json.A[aIndex]));
-            aIndex++;
-        }
-        matrix[i].push(parseFloat(json.B[bIndex]));
-        bIndex++;
-    }
 
-    showMatrix(matrix);
-    solve(matrix);
+        //(x, y, z, ...)
+        for (let j = 0; j < n; j++) {
+            matrix[i].push(parseFloat(json.A[colIndex]));
+            colIndex++;
+        }
+
+        //constant
+        matrix[i].push(parseFloat(json.B[rowIndex]));
+        rowIndex++;
+    }
+}
+
+/*******************************************************/
+/*  HTML/User interactions                             */
+/*******************************************************/
+
+// Start the timer, solve the linear system and then stop the timer. Finally display the results on the screen.
+function solve() {
+    //Copy the matrix, becaus gauss(matrix) change the content
+    let tempMatrix = cloneArray(matrix);
+
+    let start = Date.now();
+    let solutions = gauss(tempMatrix);
+    let time = Date.now() - start;
+
+    showResult(solutions);
+    $('time').innerHTML = time + "ms";
 }
 
 //Show the matrix in the HTML page
-function showMatrix(matrix) {
+function showMatrix() {
     let n = matrix.length;
     $('matrix').innerHTML = "";
     for (let i = 0; i < n; i++) {
@@ -113,7 +147,7 @@ function showMatrix(matrix) {
 function showResult(solutions) {
     //Check if the solution has been found
     let noSolution = false;
-    for (var i = 0; i < solutions.length; i++) {
+    for (let i = 0; i < solutions.length; i++) {
         if (!solutions[i]) {
             noSolution = true;
         }
@@ -122,23 +156,17 @@ function showResult(solutions) {
     if (!noSolution) {
         $('result').innerHTML = "";
         $('result').innerHTML += "</br>"
-        for (var i = 0; i < solutions.length; i++) {
-            $('result').innerHTML += "x<sub>" + i + "</sub> = " + solutions[i] + "</br>";
+        for (let i = 0; i < solutions.length; i++) {
+            $('result').innerHTML += "x<sub>" + (i+1) + "</sub> = " + solutions[i] + "</br>";
         }
     } else {
-        $('result').innerHTML = "The aforementioned equation system can not be solved"
+        $('result').innerHTML = "The aforementioned equation system can not be solved";
     }
 }
 
-// Start the timer, solve the linear system and then stop the timer. Finally display the results on the screen.
-function solve(matrix) {
-    let start = Date.now();
-    let solutions = gauss(matrix);
-    let time = Date.now() - start;
-
-    showResult(solutions);
-    $('time').innerHTML = time + "ms";
-}
+/*******************************************************/
+/*  Gauss-Jordan Elimination                           */
+/*******************************************************/
 
 /* Source: https://martin-thoma.com/solving-linear-equations-with-gaussian-elimination/#javascript-code
 The algorithm comes from the above source, but has been slightly modidfied.

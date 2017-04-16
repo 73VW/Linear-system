@@ -5,7 +5,7 @@
     <title>AN_Labo3_EquipeB1</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="loadMatrixFromJSON()">
     <header>
         <h1>AN Labo3 EquipeB1</h1>
         <h3 class="subheading">Gaussian elimination</h3>
@@ -18,7 +18,7 @@
         <button onclick="sendMessage()">Send!</button> -->
         <button onclick="showMatrix()">Show Matrix</button>
         <p><output id="matrix"></output></p>
-        <button onclick="loadMatrixFromJSON()">Solve</button>
+        <button onclick="solve()">Solve</button>
         <p>Time: <output id="time"></output></p>
         <p>Output: <output id="result"></output></p>
 
