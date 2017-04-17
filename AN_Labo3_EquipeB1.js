@@ -3,9 +3,25 @@
 /*  Date : 10 April 2017                                   */
 /***********************************************************/
 
-//The global variable for the matrix
+// The global variable for the matrix
 var matrix = new Array();
 
+// The global variable for the JSON file
+var matrixJSON = "matrix/matrice_0x0.json";
+
+var jsonFileName = ["matrix/matrice_0x0.json", "matrix/matrice_3x3.json",
+                    "matrix/matrice_50x50.json", "matrix/matrice_250x250.json",
+                    "matrix/matrice_300x300.json", "matrix/matrice_avecPB_0x0.json",
+                    "matrix/matrice_avecPB_3x3_avec_A_a_0.json", "matrix/matrice_avecPB_3x3_avec_SwapObligatoire.json"];
+
+function updateJSONFile() {
+  for (var i = 0; i < $name('matrix').length; i++) {
+    if ($name('matrix')[i].checked) {
+      matrixJSON = jsonFileName[i];
+      loadMatrixFromJSON();
+    }
+  }
+}
 /*******************************************************/
 /*  Tools                                              */
 /*******************************************************/
@@ -28,42 +44,6 @@ function cloneArray(array) {
 }
 
 /*******************************************************/
-/*  Thread                                             */
-/*******************************************************/
-var w;
-var w2;
-
-function runThread() {
-    if (typeof(Worker) !== "undefined") {
-        console.log("Browser supported");
-        if (typeof(w) == "undefined") {
-            w = new Worker("worker.js");
-            w.postMessage("Bonjour");
-        }
-        w.onmessage = function(event) {
-            $("result").innerHTML += "<br/>" + event.data;
-        };
-        w.onerror = function(event) {
-            $("result").innerHTML += "<br/>" + event.message;
-        };
-    } else {
-        $("result").innerHTML = "Sorry, your browser does not support Web Workers...";
-    }
-}
-
-function sendMessage() {
-    if (typeof(w) != "undefined")
-        w.postMessage($('text').value);
-}
-
-function stopThread() {
-    if (typeof(w) != "undefined") {
-        w.terminate();
-        w = undefined;
-    }
-}
-
-/*******************************************************/
 /*  JSON                                               */
 /*******************************************************/
 
@@ -79,7 +59,7 @@ function loadMatrixFromJSON() {
 function loadJSON(callback) {
     let xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'matrix/matrice_avecPB_3x3_avec_SwapObligatoire.json', true);
+    xobj.open('GET', matrixJSON, true);
     xobj.onreadystatechange = function() {
         if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -92,6 +72,8 @@ function loadJSON(callback) {
 /* build a matrix from the JSON file, the resulting matrix is of the following form:
 (x1, y1, z1, constant1)
 (x2, y2, z2, constant2)
+...
+(xn, yn, zn, constant_n)
 */
 function buildMatrixFromJSON(json) {
     let n = json.n;
@@ -194,7 +176,7 @@ function gauss(matrix) {
             matrix[currentPos][currentColumn] = tmp;
         }
 
-        // Make all rows below this one 0 in current column
+                // Make all rows below this one 0 in current column
         for (currentRow = currentPos + 1; currentRow < n; currentRow++) {
             let c = -matrix[currentRow][currentPos] / matrix[currentPos][currentPos];
             for (let currentColumn = currentPos; currentColumn < n + 1; currentColumn++) {

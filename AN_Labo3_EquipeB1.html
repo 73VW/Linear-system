@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>AN_Labo3_EquipeB1</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title>AN_Labo3_EquipeB1</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body onload="loadMatrixFromJSON()">
-    <header>
-        <h1>AN Labo3 EquipeB1</h1>
-        <h3 class="subheading">Gaussian elimination</h3>
-    </header>
+  <header>
+    <h1>AN Labo3 EquipeB1</h1>
+    <h3 class="subheading">Gaussian elimination</h3>
+  </header>
 
-    <section id="main">
-        <!-- <button onclick="runThread()">Start Worker</button>
-        <button onclick="stopThread()">Stop Worker</button>
-        <input type="text" id="text" placeholder="type text">
-        <button onclick="sendMessage()">Send!</button> -->
-        <button onclick="showMatrix()">Show Matrix</button>
-        <p><output id="matrix"></output></p>
-        <button onclick="solve()">Solve</button>
-        <p>Time: <output id="time"></output></p>
-        <p>Output: <output id="result"></output></p>
+  <section id="main">
+    <form>
+      <input type="radio" name="matrix" checked  onchange="updateJSONFile()"> Matrix 0x0 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 3x3 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 50x50 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 250x250 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 300x300 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with problems 0x0 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with problems 3x3 </br>
+      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with swap 3x3 </br>
+    </form>
+  </br></br>
+  <button onclick="showMatrix()">Show Matrix</button>
+  <p><output id="matrix"></output></p>
+  <button onclick="solve()">Solve</button>
+  <p>Time: <output id="time"></output></p>
+  <p>Output: <output id="result"></output></p>
 
-        <script type="text/javascript" src="AN_Labo3_EquipeB1.js"></script>
-    </section>
+  <script type="text/javascript" src="AN_Labo3_EquipeB1.js"></script>
+</section>
 
-    <footer>
-        <h2>Explanations</h2><h3>The footer is also scrollable</h3>
-        <p>
+<footer>
+  <h2>Explanations</h2><h3>The footer is also scrollable</h3>
+  <p>
 
-        </p>
-        <p>
-          Quentin Vaucher -- Axel Rieben -- Maël Pedretti ----- AN_Labo3_EquipeB1 ----- Algo Num, HE-Arc 2017
-      </p>
-  </footer>
+  </p>
+  <p>
+    Quentin Vaucher -- Axel Rieben -- Maël Pedretti ----- AN_Labo3_EquipeB1 ----- Algo Num, HE-Arc 2017
+  </p>
+</footer>
 </body>
 </html>
