@@ -4,11 +4,11 @@
 
 body {
     background-color: rgb(4, 147, 114);
-    font-family: Gill Sans, Verdana;
+    font-family: Gill Sans, Verdana, Arial;
     padding: 0;
     margin: 0;
     color: white;
-    font-size: 1.8vh;
+    font-size: 1.5vh;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
@@ -55,12 +55,21 @@ h1 {
     margin-left: 6vw;
 }
 
-#main {
-    width: 92vw;
+section{
     margin: 0;
     padding: 0;
     padding-left: 4vw;
+}
+
+#main {
+    width: 20vw;
     padding-bottom: 30vh;
+    float: left;
+}
+
+#printSection{
+    float: right;
+    width: 70vw;
 }
 
 form {
@@ -106,4 +115,8 @@ footer {
     position: fixed;
     bottom: 0;
     overflow-y: scroll;
+}
+
+#buttonSolve, #buttonShow, #out, #t, #mat, #selectMatrix{
+    display: none;
 }

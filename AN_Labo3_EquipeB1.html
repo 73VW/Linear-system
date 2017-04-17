@@ -1,45 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>AN_Labo3_EquipeB1</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body onload="loadMatrixFromJSON()">
-  <header>
-    <h1>AN Labo3 EquipeB1</h1>
-    <h3 class="subheading">Gaussian elimination</h3>
-  </header>
+    <head>
+        <meta charset="utf-8">
+        <title>AN_Labo3_EquipeB1</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body onload="initWorkers();">
+        <header>
+            <h1>AN Labo3 EquipeB1</h1>
+            <h3 class="subheading" id="subtitle">Gaussian elimination</h3>
+        </header>
+        <section id="main">
+            <h3>Choose folder containing matrix</h3>
+            <input type="file" id="fileElementId" name="files[]" multiple webkitdirectory="" directory="" onchange="listFiles()"/><br/>
+            <form>
+                <select id="selectMatrix" name="selectMatrix" size=1 onchange="onSelectChange()">
+                </select>
+            </form>
+            <button id="buttonShow" onclick="showMatrix()">Show Matrix</button>
+            <button id="buttonSolve" onclick="solve()">Solve</button>
+            <p id="t">Calculation time: <output id="time"></output></p>
+            <p id="out">Results: <output id="result"></output></p>
 
-  <section id="main">
-    <form>
-      <input type="radio" name="matrix" checked  onchange="updateJSONFile()"> Matrix 0x0 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 3x3 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 50x50 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 250x250 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix 300x300 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with problems 0x0 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with problems 3x3 </br>
-      <input type="radio" name="matrix" onchange="updateJSONFile()"> Matrix with swap 3x3 </br>
-    </form>
-  </br></br>
-  <button onclick="showMatrix()">Show Matrix</button>
-  <p><output id="matrix"></output></p>
-  <button onclick="solve()">Solve</button>
-  <p>Time: <output id="time"></output></p>
-  <p>Output: <output id="result"></output></p>
+            <script type="text/javascript" src="AN_Labo3_EquipeB1.js"></script>
+        </section>
+        <section id="printSection">
+            <h3>Matrix</h3>
+            <p id="mat"><output id="matrix"></output></p>
+        </section>
+        <footer>
+            <h2>Explanations</h2>
+            <h3>The footer is also scrollable</h3>
+            <p>
 
-  <script type="text/javascript" src="AN_Labo3_EquipeB1.js"></script>
-</section>
-
-<footer>
-  <h2>Explanations</h2><h3>The footer is also scrollable</h3>
-  <p>
-
-  </p>
-  <p>
-    Quentin Vaucher -- Axel Rieben -- Maël Pedretti ----- AN_Labo3_EquipeB1 ----- Algo Num, HE-Arc 2017
-  </p>
-</footer>
-</body>
+            </p>
+            <p>
+                Quentin Vaucher -- Axel Rieben -- Maël Pedretti ----- AN_Labo3_EquipeB1 ----- Algo Num, HE-Arc 2017
+            </p>
+        </footer>
+    </body>
 </html>

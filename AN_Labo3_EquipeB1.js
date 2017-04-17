@@ -9,19 +9,13 @@ var matrix = new Array();
 // The global variable for the JSON file
 var matrixJSON = "matrix/matrice_0x0.json";
 
-var jsonFileName = ["matrix/matrice_0x0.json", "matrix/matrice_3x3.json",
-                    "matrix/matrice_50x50.json", "matrix/matrice_250x250.json",
-                    "matrix/matrice_300x300.json", "matrix/matrice_avecPB_0x0.json",
-                    "matrix/matrice_avecPB_3x3_avec_A_a_0.json", "matrix/matrice_avecPB_3x3_avec_SwapObligatoire.json"];
+//Variable used to show/hide the matrix
+var shownMatrix = false;
 
-function updateJSONFile() {
-  for (var i = 0; i < $name('matrix').length; i++) {
-    if ($name('matrix')[i].checked) {
-      matrixJSON = jsonFileName[i];
-      loadMatrixFromJSON();
-    }
-  }
-}
+//webworkers aka threads
+var workerMatrixPrinter;
+var workerSolutionsPrinter;
+
 /*******************************************************/
 /*  Tools                                              */
 /*******************************************************/
@@ -44,29 +38,72 @@ function cloneArray(array) {
 }
 
 /*******************************************************/
+/*  Web Worker                                         */
+/*******************************************************/
+
+
+function initWorkers(){
+    if(typeof(Worker) === "undefined") {
+        console.log("Sorry, your browser does not support Web Workers...");
+    }
+    else {
+        console.log("Browser supported");
+
+        if(typeof(workerMatrixPrinter) == "undefined")
+            workerMatrixPrinter = new Worker("AN_Labo3_EquipeB1_workerMatrixPrinter.js");
+        if(typeof(workerSolutionsPrinter) == "undefined")
+            workerSolutionsPrinter = new Worker("AN_Labo3_EquipeB1_workerSolutionsPrinter.js");
+
+        workerMatrixPrinter.onmessage = function(event) {
+            $('matrix').innerHTML = event.data;
+        };
+
+        workerSolutionsPrinter.onmessage = function(event) {
+            $('result').innerHTML = event.data;
+            $('buttonSolve').disabled = false;
+        }
+
+        let errorFct = function(event) {
+                            console.log(event.message);
+                        };
+
+        workerMatrixPrinter.onerror = workerSolutionsPrinter.onerror = errorFct;
+    }
+}
+
+/*******************************************************/
 /*  JSON                                               */
 /*******************************************************/
 
+
+function updateJSONFile() {
+    matrixJSON = "matrix/"+$("selectMatrix").value;
+    loadMatrixFromJSON();
+}
+
 // Source: https://codepen.io/KryptoniteDove/post/load-json-file-locally-using-pure-javascript
 function loadMatrixFromJSON() {
-    loadJSON(function(response) {
-        // Parse JSON string into object
-        let json = JSON.parse(response);
-        buildMatrixFromJSON(json);
-    });
+    let callback = function(response) {
+                        // Parse JSON string into object
+                        let json = JSON.parse(response);
+                        buildMatrixFromJSON(json);
+                    }
+    loadJSON(callback);
 }
 
 function loadJSON(callback) {
     let xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', matrixJSON, true);
     xobj.onreadystatechange = function() {
-        if (xobj.readyState == 4 && xobj.status == "200") {
+        if (xobj.readyState == XMLHttpRequest.DONE && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
             callback(xobj.responseText);
+            if(typeof(workerMatrixPrinter) != "undefined")
+                workerMatrixPrinter.postMessage(matrix);
         }
     };
-    xobj.send(null);
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', matrixJSON, true);
+    xobj.send();
 }
 
 /* build a matrix from the JSON file, the resulting matrix is of the following form:
@@ -76,22 +113,17 @@ function loadJSON(callback) {
 (xn, yn, zn, constant_n)
 */
 function buildMatrixFromJSON(json) {
-    let n = json.n;
+    let n = json.n[0];
     matrix = new Array();
     let colIndex = 0;
     let rowIndex = 0;
     for (let i = 0; i < n; i++) {
         matrix[i] = new Array();
-
         //(x, y, z, ...)
-        for (let j = 0; j < n; j++) {
-            matrix[i].push(parseFloat(json.A[colIndex]));
-            colIndex++;
-        }
-
+        for (let j = 0; j < n; j++)
+            matrix[i].push(parseFloat(json.A[colIndex++]));
         //constant
-        matrix[i].push(parseFloat(json.B[rowIndex]));
-        rowIndex++;
+        matrix[i].push(parseFloat(json.B[rowIndex++]));
     }
 }
 
@@ -104,45 +136,32 @@ function solve() {
     //Copy the matrix, becaus gauss(matrix) change the content
     let tempMatrix = cloneArray(matrix);
 
-    let start = Date.now();
+    let start = performance.now();
     let solutions = gauss(tempMatrix);
-    let time = Date.now() - start;
+    let time = performance.now() - start;
 
-    showResult(solutions);
-    $('time').innerHTML = time + "ms";
+    $('time').innerHTML = "<br/>" + time + "ms";
+    $('t').style.display = "block";
+    $('result').innerHTML = "";
+    $('buttonSolve').disabled = true;
+    if(typeof(workerSolutionsPrinter) != "undefined")
+        workerSolutionsPrinter.postMessage(solutions);
+    $('out').style.display = "block";
 }
+
 
 //Show the matrix in the HTML page
 function showMatrix() {
-    let n = matrix.length;
-    $('matrix').innerHTML = "";
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            $('matrix').innerHTML += matrix[i][j] + " ";
-        }
-        $('matrix').innerHTML += " = " + matrix[i][n] + " ";
-        $('matrix').innerHTML += "</br>";
+    if(shownMatrix==false){
+        $('mat').style.display="block";
+        $('matrix').style.display = "block";
+        $('buttonShow').innerHTML = "Hide matrix";
+        shownMatrix = true;
     }
-}
-
-//Show the solutions in the HTML page
-function showResult(solutions) {
-    //Check if the solution has been found
-    let noSolution = false;
-    for (let i = 0; i < solutions.length; i++) {
-        if (!solutions[i]) {
-            noSolution = true;
-        }
-    }
-
-    if (!noSolution) {
-        $('result').innerHTML = "";
-        $('result').innerHTML += "</br>"
-        for (let i = 0; i < solutions.length; i++) {
-            $('result').innerHTML += "x<sub>" + (i+1) + "</sub> = " + solutions[i] + "</br>";
-        }
-    } else {
-        $('result').innerHTML = "The aforementioned equation system can not be solved";
+    else{
+        $('mat').style.display="none";
+        $('buttonShow').innerHTML = "Show matrix";
+        shownMatrix = false;
     }
 }
 
@@ -169,14 +188,12 @@ function gauss(matrix) {
             }
         }
 
-        // Swap maximum row with current row (column by column)
-        for (let currentColumn = currentPos; currentColumn < n + 1; currentColumn++) {
-            let tmp = matrix[maxRowIndex][currentColumn];
-            matrix[maxRowIndex][currentColumn] = matrix[currentPos][currentColumn];
-            matrix[currentPos][currentColumn] = tmp;
-        }
+        // Swap maximum row with current row
+        let tmp = matrix[maxRowIndex];
+        matrix[maxRowIndex]=matrix[currentPos];
+        matrix[currentPos]=tmp;
 
-                // Make all rows below this one 0 in current column
+        // Make all rows below this one 0 in current column
         for (currentRow = currentPos + 1; currentRow < n; currentRow++) {
             let c = -matrix[currentRow][currentPos] / matrix[currentPos][currentPos];
             for (let currentColumn = currentPos; currentColumn < n + 1; currentColumn++) {
@@ -199,4 +216,22 @@ function gauss(matrix) {
     }
 
     return solutions;
+}
+
+function onSelectChange(){
+    $("buttonSolve").style.display='block';
+    $("buttonShow").style.display='block';
+    updateJSONFile();
+}
+
+//function used to list only json files when a folder is chosen.
+function listFiles(){
+    let inp = $('fileElementId');
+    let outp = $("selectMatrix");
+    outp.innerHTML = "<option selected disabled>Select Matrix</option>";
+    for (var i = 0; i < inp.files.length; i++){
+        if(inp.files[i].name.split('.').pop()=="json")
+            outp.innerHTML += "<option value=\"" + inp.files[i].name + "\">"+ inp.files[i].name +"</option>";
+    }
+    outp.style.display='block';
 }
